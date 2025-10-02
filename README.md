@@ -69,7 +69,7 @@ For security and portability, API keys and configuration paths should not be har
 
 **A. Create a `.env` file** in the root directory of the project with the following content:
 
--   Replace `sk-xxxxxxxx...` with your actual DeepSeek API key.
+-   Replace `sk-xxxxxxxx...` with your actual LLM API key.
 -   Replace `/path/to/your/videos` with the absolute path to the directory where your original video files are stored.
 
 **B. Update `app.py` to use these variables.**
