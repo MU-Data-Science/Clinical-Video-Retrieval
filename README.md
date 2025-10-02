@@ -50,11 +50,11 @@ You need to update the schema for the `June2025BGE` core to support dense vector
 
 -   **Fields:**
     Ensure your schema includes the following fields:
-    *(<field name="file_name" type="plongs" indexed="true" uninvertible="true" stored="true"/>)*
-    *(<field name="id" type="string" multiValued="false" indexed="true" required="true" stored="true"/>)*
-    *(<field name="sentence" type="text_general" indexed="true" uninvertible="true" stored="true"/>)*
-    *(<field name="timestamp" type="text_general" indexed="true" uninvertible="true" stored="true"/>)*
-    *(<field name="vector" type="knn_vector" indexed="true" uninvertible="true" stored="true"/>)*
+    - *(<field name="file_name" type="plongs" indexed="true" uninvertible="true" stored="true"/>)*
+    - *(<field name="id" type="string" multiValued="false" indexed="true" required="true" stored="true"/>)*
+    - *(<field name="sentence" type="text_general" indexed="true" uninvertible="true" stored="true"/>)*
+    - *(<field name="timestamp" type="text_general" indexed="true" uninvertible="true" stored="true"/>)*
+    - *(<field name="vector" type="knn_vector" indexed="true" uninvertible="true" stored="true"/>)*
     
 **C. Index Your Data:**
 Run the indexing script 'text2vector.py'. The script will:
