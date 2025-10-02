@@ -1,0 +1,8 @@
+flask
+sentence-transformers
+requests
+moviepy
+transformers
+torch
+openai
+python-dotenv
