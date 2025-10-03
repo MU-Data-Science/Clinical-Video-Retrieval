@@ -11,8 +11,8 @@ This project is a Flask-based web application that provides a powerful semantic 
 - [Prerequisites](#-prerequisites)
 - [Setup and Installation](#-setup-and-installation)
 - [Running the Application](#-running-the-application)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [Publications](#-publications)
+- [Acknowledgement](#-acknowledgement)
 
 ## ✨ Features
 
