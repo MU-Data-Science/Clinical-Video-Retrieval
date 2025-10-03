@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Search Results • Clinical Video Retrieval</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#f7f7f8; margin:0; padding:24px; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 14px; }
+    a.home { color:#2563eb; text-decoration:none; }
+    h2 { font-size: 24px; margin: 8px 0 16px; }
+    ul { list-style:none; padding:0; margin:0; }
+    li {
+      background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:14px 16px;
+      margin-bottom:12px; box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    .result-sentence { font-size:18px; line-height:1.5; }
+    .file-info { font-size: 14px; color:#475569; margin-top:6px; }
+    .file-info strong { color:#334155; }
+    .action-links { margin-top:8px; font-size: 14px; }
+    .action-links a { color:#2563eb; text-decoration:none; }
+    .action-links a:hover { text-decoration:underline; }
+    .useful-button {
+      font-size: 18px; color: #111; cursor: pointer; margin-left: 8px;
+      border: none; background: none; padding: 2px 6px; border-radius: 6px;
+    }
+    .useful-button.active { color: #16a34a; background: #ecfdf5; }
+    .survey { margin-top: 24px; background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:16px; }
+    .survey h3 { margin: 0 0 6px; }
+    .survey label { display:block; margin: 10px 0 5px; }
+    .survey textarea { width:100%; height: 70px; padding:8px; font: inherit; }
+    .survey button {
+      margin-top:8px; padding: 10px 16px; background:#2563eb; color:#fff; border:0;
+      font-size: 15px; border-radius: 8px; cursor:pointer;
+    }
+    .survey button:hover { filter: brightness(0.95); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="home" href="{{ url_for('index') }}">&larr; New search</a>
+    </header>
+
+    <h2>Search Results</h2>
+
+    <ul>
+      {% for result in results %}
+        {% set sentence = (result.sentence | join(' ')) if result.sentence is iterable and (result.sentence is not string) else result.sentence %}
+        {% set ts = (result.timestamp[0] if result.timestamp is iterable and (result.timestamp is not string) else result.timestamp) %}
+        {% set fname = (result.file_name[0] if result.file_name is iterable and (result.file_name is not string) else result.file_name) %}
+
+        <li>
+          <div><strong>{{ loop.index }}.</strong></div>
+
+          <div class="file-info">
+            {% if fname %}<strong>File:</strong> {{ fname }}{% endif %}
+            {% if ts %} &nbsp; <strong>Timestamp:</strong> {{ ts }}{% endif %}
+            {% if result.cross_encoder_score is defined %} &nbsp; <strong>Score:</strong> {{ '%.3f'|format(result.cross_encoder_score) }}{% endif %}
+          </div>
+
+          {% if sentence %}
+            <div class="result-sentence">{{ sentence }}</div>
+          {% endif %}
+
+          <div class="action-links">
+            {% if result.video_segment_url %}
+              <a href="{{ result.video_segment_url }}" target="_blank" rel="noopener">View Preview</a>
+            {% endif %}
+            {% if result.original_video_url and result.original_video_url != 'URL not found' %}
+              {% if result.video_segment_url %} | {% endif %}
+              <a href="{{ result.original_video_url }}" target="_blank" rel="noopener">View Full Video</a>
+            {% endif %}
+
+            <!-- Client-side toggle; no server call to avoid 404 without a route -->
+            <button
+              class="useful-button"
+              id="usefulBtn{{ loop.index }}"
+              data-filename="{{ fname if fname else '' }}"
+              aria-pressed="false"
+              title="Mark as useful"
+              onclick="toggleUseful(this)"
+            >&#10003;</button>
+
+            <!-- If you later add a POST /mark-as-useful route in app.py, switch to:
+            onclick="markAsUseful(this)" and uncomment the function below. -->
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <div class="survey">
+      <h3>Your Feedback</h3>
+      <form method="post" action="{{ url_for('submit_survey') }}">
+        <label for="usefulness">1. Was the tool useful?</label>
+        <textarea id="usefulness" name="usefulness" required></textarea>
+
+        <label for="experience">2. How was your experience using the tool?</label>
+        <textarea id="experience" name="experience" required></textarea>
+
+        <label for="improvements">3. Any suggestions for improvements?</label>
+        <textarea id="improvements" name="improvements" required></textarea>
+
+        <button type="submit">Submit Feedback</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function toggleUseful(btn){
+      const isActive = btn.classList.toggle('active');
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    }
+
+
+  </script>
+</body>
+</html>
