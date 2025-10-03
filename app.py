@@ -1,3 +1,12 @@
+# app.py
+"""
+Clinical Video Retrieval Tool
+
+- Configuration via environment variables (see README).
+- Optional query variations via query_variations.generate_query_variations()
+- Uses Flask's instance folder for lightweight local data (e.g., survey file).
+"""
+
 from flask import Flask, render_template, request, redirect, send_from_directory, url_for, abort
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -10,6 +19,9 @@ import json
 import torch
 import time
 from pathlib import Path
+
+# Import the new query variation function (replaces old openai_gpt_functions import)
+from query_variations import generate_query_variations
 
 # Optional: moviepy for local clip previews (can be removed if you only serve pre-cut segments)
 try:
@@ -29,7 +41,6 @@ load_dotenv(override=False)
 SOLR_CORE_URL = os.getenv("SOLR_CORE_URL", "http://localhost:8983/solr/June2025BGE")
 VIDEO_DIRECTORY = os.getenv("VIDEO_DIRECTORY", "")  # Directory holding original/full videos (optional)
 VIDEO_URL_MAP_PATH = os.getenv("VIDEO_URL_MAP_PATH", "video_url_map.json")  # Maps file names to public URLs (optional)
-LLM_API_KEY = os.getenv("LLM_API_KEY", "")  # Optional; enables query variations
 FLASK_DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
 
 # App & instance folder (Flask uses instance/ for local, non-checked-in data)
@@ -135,21 +146,6 @@ def load_models():
     return _models
 
 # ------------------------------------------------------------------------------
-# Optional: GPT query variations
-# ------------------------------------------------------------------------------
-
-def generate_query_variations(query: str, n_variations: int = 10):
-    """
-    OPTIONAL: If you have an LLM key (LLM_API_KEY), you can generate query rewrites.
-    For public code we keep this a no-op by default to avoid external calls.
-    """
-    if not LLM_API_KEY:
-        return [query]
-    # Stubbed: return the original query for public repo.
-    # Integrate your provider here if desired (e.g., OpenAI, DeepSeek), but do not hardcode keys.
-    return [query]
-
-# ------------------------------------------------------------------------------
 # Search functions
 # ------------------------------------------------------------------------------
 
@@ -234,12 +230,12 @@ def combined_search_interleaved(
     tokenizer = models["tokenizer"]
     cross_encoder = models["cross_encoder"]
     device = models["device"]
-    use_fp16 = models["use_fp16"]
 
     # Step 1: Query variations (optional)
     start_gpt = time.perf_counter()
     queries_to_run = [query]
     if use_gpt_variations:
+        # Uses the new function from query_variations.py (env-driven; safe fallback)
         queries_to_run = list({qv for qv in generate_query_variations(query, n_variations=10) if qv.strip()})
     timing['gpt_query_variations'] = time.perf_counter() - start_gpt
 
@@ -281,7 +277,6 @@ def combined_search_interleaved(
     with torch.no_grad():
         for start in range(0, len(all_pairs), batch_size):
             batch = {k: v[start:start + batch_size] for k, v in enc.items()}
-            # Do not force half on input_ids; leave tensors as-is for max compatibility
             logits = cross_encoder(**batch).logits.view(-1).float()
             scores.extend(logits.detach().cpu().tolist())
     timing['inference'] = time.perf_counter() - start_inference
@@ -378,7 +373,6 @@ def submit_survey():
             f.write('---\n')
     except Exception as e:
         print("Failed to write survey:", e)
-        # Don't crash the UX
     return redirect(url_for('index'))
 
 @app.route('/preview/<file_name>/<int:timestamp>')
@@ -404,7 +398,6 @@ def preview(file_name, timestamp):
             clip = video.subclip(timestamp, end_time)
             out_name = f"preview_{base}"
             out_path = PREVIEW_DIR / out_name
-            # moviepy selects encoders; keep defaults to avoid platform-specific issues
             clip.write_videofile(str(out_path))
     except Exception as e:
         print("Preview extraction failed:", e)
