@@ -26,9 +26,10 @@ This project is a Flask-based web application that provides a powerful semantic 
 - **Backend**: Flask  
 - **Search**: Apache Solr 9.x (for keyword and dense neural search)  
 - **AI / ML**:  
-  - **Sentence Transformers**: `BAAI/bge-large-en-v1.5` for embeddings.  
-  - **Cross-Encoder**: `BAAI/bge-reranker-v2-m3` for re-ranking.  
-  - **LLM**: Configured for OpenAI API (or any compatible provider).  
+  - **Sentence Transformers**: `pritamdeka/S-PubMedBert-MS-MARCO`, `BAAI/bge-large-en-v1.5`, `intfloat/e5-base-v2`  
+  - **Cross-Encoders**: `cross-encoder/ms-marco-MiniLM-L-12-v2`, `BAAI/bge-reranker-v2-m3`  
+  - **Biomedical Models**: `emilyalsentzer/Bio_ClinicalBERT`  
+  - **LLM**: Configured for DeepSeek API   
 - **Video Processing**: ffmpeg  
 
 ## ✅ Prerequisites
