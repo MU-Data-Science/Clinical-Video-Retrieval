@@ -1,90 +1,145 @@
 # Clinical Video Retrieval Tool
 
-This project is a Flask-based web application that provides a powerful semantic search interface for a collection of medical video transcripts. It leverages a hybrid search approach, combining traditional keyword search with modern dense neural semantic search, and uses a Large Language Model (LLM) to rephrase user query to retrieve more relevant search results.
+![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg) ![Framework](https://img.shields.io/badge/framework-Flask-green.svg) ![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
 
-## Features
+This project is a Flask-based web application that provides a powerful semantic search interface for a collection of medical video transcripts. It uses a hybrid search approach, combining keyword search (BM25) with dense neural search (Sentence Transformers), and leverages Large Language Models (LLMs) to enhance query understanding.
 
--   **Hybrid Search**: Combines keyword search (via Apache Solr) and dense vector search to retrieve relevant passages from video transcripts.
--   **Advanced Re-ranking**: Uses a `bge-reranker-v2-m3` cross-encoder to re-rank and refine search results for higher accuracy.
--   **Video Previews**: Allows users to view the original video segment corresponding to a search result.
--   **User-Friendly Interface**: A simple, clean web interface for searching and viewing results.
+## 📋 Table of Contents
 
-## Prerequisites
+- [Features](#-features)
+- [Technology Stack](#-technology-stack)
+- [Prerequisites](#-prerequisites)
+- [Setup and Installation](#-setup-and-installation)
+- [Running the Application](#-running-the-application)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+## ✨ Features
+
+-   **Hybrid Search**: Combines keyword search (BM25 via Apache Solr) and dense semantic search to retrieve relevant passages from video transcripts.
+-   **Advanced Re-ranking**: Uses a `bge-reranker-v2-m3` cross-encoder to refine search results for higher accuracy.
+-   **Query Rewriting**: Leverages an LLM to rephrase user queries for more comprehensive retrieval.
+-   **Video Previews**: Allows users to instantly view the video segment corresponding to a search result.
+
+## 🛠️ Technology Stack
+
+-   **Backend**: Flask
+-   **Search**: Apache Solr 9.x (for keyword and dense vector search)
+-   **AI / ML**:
+    -   **Sentence Transformers**: `BAAI/bge-large-en-v1.5` for embeddings.
+    -   **Cross-Encoder**: `BAAI/bge-reranker-v2-m3` for re-ranking.
+    -   **LLM**: Configured for OpenAI API (or any compatible provider).
+-   **Video Processing**: ffmpeg
+
+## ✅ Prerequisites
 
 Before you begin, ensure you have the following installed on your system:
 
--   **Python 3.8+**
--   **Apache Solr 9.x**: For indexing and keyword/dense neural search.
--   **ffmpeg**: A command-line tool for video processing, required for generating video previews.
--   **(For Apple Silicon Users)**: The application is configured to use PyTorch with MPS for hardware acceleration on Apple Silicon Macs.
+-   Python 3.8+
+-   [Apache Solr](https://solr.apache.org/downloads.html) (version 9.x)
+-   [ffmpeg](https://ffmpeg.org/download.html)
 
-## Setup and Installation
+*(Note for Apple Silicon Users: The setup is configured to use PyTorch with MPS for hardware acceleration.)*
 
-Follow these steps to get the project up and running on your local machine.
+## 🚀 Setup and Installation
+
+Follow these steps precisely to get the project running.
 
 ### 1. Clone the Repository
 
-### 2. Create a Python Virtual Environment
+```sh
+git clone 
+```
+
+### 2. Create and Activate a Python Virtual Environment
 
 It's highly recommended to use a virtual environment to manage project dependencies.
+
+# Create the virtual environment
+python3 -m venv venv
+
+# Activate it
+# On macOS/Linux:
+source venv/bin/activate
+# On Windows:
+# venv\Scripts\activate
 
 ### 3. Install Dependencies
 
 This project uses several Python libraries. A `requirements.txt` file is provided for easy installation.
 
+pip install -r requirements.txt
+
 *(Note: If you are on an Apple Silicon Mac, PyTorch with MPS support should be installed automatically. If not, please refer to the official PyTorch installation guide).*
 
-### 4. Configure Apache Solr
+### 4. Set Up Environment Variables
+
+Create a .env file in the project's root directory. This file will store your secret keys and configuration paths. It's crucial to add .env to your .gitignore file to avoid committing secrets.
+
+# Copy the example file
+cp .env.example .env
+
+Now, open the .env file and add your specific values:
+
+# .env file
+LLM_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+VIDEO_DIRECTORY="/path/to/your/videos"
+SOLR_CORE_URL="http://localhost:8983/solr/June2025BGE"
+
+### 5. Configure Apache Solr
 
 The search functionality relies on a properly configured Solr core.
 
 **A. Create a Solr Core:**
-Create a new core named `June2025BGE` (or update the core name in `app.py`).
+If you haven't already, create a new core. You can name it June2025BGE or choose another name (remember to update it in your .env file).
 
 **B. Configure the Schema:**
-You need to update the schema for the `June2025BGE` core to support dense vector search. Edit the `managed-schema` file (or use the Schema API) to add a field type for vectors and a field that uses it.
+Use the Solr Schema API to add the necessary field type and fields for vector storage. Run these commands from your terminal.
 
 -   **Field Type for Vectors:**
-    
-    *(The `vectorDimension` of `1024` is required for the `BAAI/bge-large-en-v1.5` model used in this project.)*
+
+    curl -X POST -H 'Content-type:application/json' --data-binary '{
+  "add-field-type": {
+    "name": "knn_vector",
+    "class": "solr.DenseVectorField",
+    "vectorDimension": "1024",
+    "similarityFunction": "cosine"
+  }
+}' http://localhost:8983/solr/June2025BGE/schema
+(Note: vectorDimension is set to 1024 for the BAAI/bge-large-en-v1.5 model.)
 
 -   **Fields:**
-    Ensure your schema includes the following fields:
-    - '*(field name="file_name" type="plongs" indexed="true" uninvertible="true" stored="true"/)*'
-    - '*(field name="id" type="string" multiValued="false" indexed="true" required="true" stored="true"/)*'
-    - '*(field name="sentence" type="text_general" indexed="true" uninvertible="true" stored="true"/)*'
-    - '*(field name="timestamp" type="text_general" indexed="true" uninvertible="true" stored="true"/)*'
-    - '*(field name="vector" type="knn_vector" indexed="true" uninvertible="true" stored="true"/)*'
+    Add the required fields:
+    ```bash
+curl -X POST -H 'Content-type:application/json' --data-binary '{
+  "add-field": [
+    {"name": "file_name", "type": "string", "stored": true},
+    {"name": "sentence", "type": "text_general", "stored": true},
+    {"name": "timestamp", "type": "string", "stored": true},
+    {"name": "vector", "type": "knn_vector", "indexed": true, "stored": true}
+  ]
+}' http://localhost:8983/solr/June2025BGE/schema ```
+
     
-**C. Index Your Data:**
-Run the indexing script 'text2vector.py'. The script will:
-1.  Read your video transcripts.
-2.  Generate vector embeddings for each text segment using the `BAAI/bge-large-en-v1.5` model. Or change the model_name to the Sentence Transformer you prefer.
-Post the data (ID, text, timestamp, filename, and vector) to your Solr core with Command:
--  *(bin/post -c June2025BGE /path/to/your/vector embeddings/BAAIbgeLargejson2025)* 
+###6. Index Your Data:**
+Run the indexing script 'text2vector.py' to process your transcripts, generate embeddings, and create a JSON file for Solr. 
 
-### 5. Set Up Environment Variables
+# This script will generate a JSON file for indexing
+python text2vector.py
 
-For security and portability, API keys and configuration paths should not be hardcoded.
+# Post the generated data to your Solr core
+# Make sure to replace the path with the actual path to your generated JSON file
+bin/post -c June2025BGE /path/to/generated/output.json
 
-**A. Create a `.env` file** in the root directory of the project with the following content:
-
--   Replace `sk-xxxxxxxx...` with your actual LLM API key.
--   Replace `/path/to/your/videos` with the absolute path to the directory where your original video files are stored.
-
-**B. Update `app.py` to use these variables.**
-
-
-### 6. Configure Video URLs
-
-The `video_url_map.json` file maps video filenames to their full URLs (e.g., on a SharePoint or cloud storage). Make sure this file is present and correctly populated with your video data.
-
-The application will be available at http://127.0.0.1:5000. Open this URL in your web browser to start searching.
+### 7. Configure Video URLs
+Ensure the video_url_map.json file is present and correctly maps your video filenames to their accessible URLs (e.g., local paths or cloud storage links).
 
 
 ## Running the Application
 
 Once the setup is complete, you can run the Flask application.
+
+The application will be available at http://127.0.0.1:5000. Open this URL in your web browser to start searching.
 
 
 # Publications
