@@ -24,7 +24,7 @@ This project is a Flask-based web application that provides a powerful semantic 
 ## 🛠️ Technology Stack
 
 - **Backend**: Flask  
-- **Search**: Apache Solr 9.x (for keyword and dense vector search)  
+- **Search**: Apache Solr 9.x (for keyword and dense neural search)  
 - **AI / ML**:  
   - **Sentence Transformers**: `BAAI/bge-large-en-v1.5` for embeddings.  
   - **Cross-Encoder**: `BAAI/bge-reranker-v2-m3` for re-ranking.  
