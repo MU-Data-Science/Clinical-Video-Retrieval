@@ -12,7 +12,7 @@ This project is a Flask-based web application that provides a powerful semantic 
 - [Setup and Installation](#-setup-and-installation)
 - [Running the Application](#-running-the-application)
 - [Publications](#-publications)
-- [Acknowledgement](#-acknowledgement)
+- [Acknowledgements](#-acknowledgements)
 
 ## ✨ Features
 
@@ -169,11 +169,12 @@ The application will be available at:
 
 Open this URL in your web browser to start searching.
 
-
+---
 
 ## Publications
 1. Zhandi Liu, Mirna Becevic, Amy Braddock, Mihai Popescu, Eduardo J. Simoes, and Praveen Rao - **An Empirical Evaluation of Deep Learning Techniques for Clinical Video Retrieval**. In Proc. of 8th IEEE International Conference on Multimedia Information Processing and Retrieval (MIPR 2025), 8 pages, San Jose, CA. [[PDF]](https://drive.google.com/file/d/1twxy8q__LeYMgOGfMS7bdjnMLEeHuds2/view)
 
+---
 
 ## Acknowledgments
 This work was supported by the National Institute of Diabetes And Digestive And Kidney Diseases of the National Institutes of Health under Award Number P30DK092950.
