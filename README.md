@@ -48,8 +48,8 @@ Follow these steps precisely to get the project running.
 ### 1. Clone the Repository
 
 ```sh
-git clone <your-repo-url>
-cd <your-repo-folder>
+git clone https://github.com/MU-Data-Science/Clinical-Video-Retrieval
+cd Clinical-Video-Retrieval
 ```
 
 ### 2. Create and Activate a Python Virtual Environment
