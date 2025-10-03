@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clinical Video Retrieval</title>
+  <style>
+    :root { --brand:#4285f4; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background-color: #f7f7f8;
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .wrap {
+      width: 100%;
+      max-width: 760px;
+      margin-inline: auto;
+      text-align: center;
+    }
+    h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.1;
+      margin: 0 0 16px;
+      background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    p.sub {
+      margin: 0 0 24px;
+      color: #444;
+    }
+    form {
+      display: flex;
+      gap: 0;
+      width: 100%;
+      margin: 0 auto 12px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    input[type="text"]{
+      flex: 1;
+      padding: 14px 18px;
+      font-size: 16px;
+      border: 0;
+      outline: none;
+      min-width: 0;
+    }
+    button[type="submit"]{
+      padding: 12px 18px;
+      background: var(--brand);
+      color: #fff;
+      border: 0;
+      font-size: 16px;
+      cursor: pointer;
+      transition: filter .15s ease;
+    }
+    button[type="submit"]:hover{ filter: brightness(0.95); }
+    .error {
+      color: #b91c1c;
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 12px auto 0;
+      width: fit-content;
+      max-width: 100%;
+    }
+    .suggestions {
+      margin-top: 10px;
+      font-size: 15px;
+      color: #555;
+    }
+    .suggestions a {
+      display: inline-block;
+      margin: 6px 10px 0 0;
+      padding: 6px 10px;
+      border-radius: 999px;
+      text-decoration: none;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: var(--brand);
+    }
+    .suggestions a:hover { background: #f3f4f6; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Clinical Video Retrieval</h1>
+    <p class="sub">Search medical video transcripts (BM25 + dense + rerank).</p>
+
+    {% if error %}
+      <div class="error" role="alert">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" aria-label="Search medical video transcripts">
+      <input
+        type="text"
+        name="query"
+        placeholder="Enter search query"
+        aria-label="Search query"
+        autocomplete="on"
+        required
+      />
+      <button type="submit">Search</button>
+    </form>
+
+    <div class="suggestions" aria-label="Example queries">
+      Suggestions:
+      <a href="#" onclick="submitSearch('diabetes'); return false;">diabetes</a>
+      <a href="#" onclick="submitSearch('pregnancy'); return false;">pregnancy</a>
+      <a href="#" onclick="submitSearch('monogenic diabetes'); return false;">monogenic diabetes</a>
+    </div>
+  </main>
+
+  <script>
+    function submitSearch(keyword) {
+      const form = document.querySelector('form');
+      const input = document.querySelector('input[name="query"]');
+      input.value = keyword;
+      form.submit();
+    }
+  </script>
+</body>
+</html>
