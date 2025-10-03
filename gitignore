@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+
+# Environment / config
+.env
+.env.*
+instance/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE / Editor junk
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Video outputs / previews
+*.mp4
+*.avi
+*.mov
+*.mkv
+previews/
+
+# Data outputs
+*.json
+!video_url_map.json   # keep the mapping file if you want it versioned
+survey_responses.txt
