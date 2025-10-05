@@ -1,6 +1,7 @@
 # Clinical Video Retrieval Tool
 
-![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg) ![Framework](https://img.shields.io/badge/framework-Flask-green.svg) 
+![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg) ![Framework](https://img.shields.io/badge/framework-Flask-green.svg) ![Search](https://img.shields.io/badge/search-Apache%20Solr%209.x-orange.svg?logo=apachesolr)
+
 
 This project is a Flask-based web application that provides a powerful semantic search interface for a collection of medical video transcripts. It uses a hybrid search approach, combining keyword search (BM25) with dense neural search (Sentence Transformers), and leverages Large Language Models (LLMs) to enhance query understanding.
 
